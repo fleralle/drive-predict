@@ -1,0 +1,7 @@
+# Data folder
+data/*
+
+# Env files and dirs
+.DS_store
+.ipynb_checkpoints
+__pycache__
