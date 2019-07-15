@@ -5,29 +5,35 @@ import pandas as pd
 import os
 
 
-def get_dataset_definition(file_path: str):
-    with h5py.File(file_path, 'r') as hdf:
-        ls = list(hdf.keys())
-        return ls
-    return None
-
-
 def load_dataset_as_dataframe(file_path: str):
+    """Load HD5 dataset as a panda dataframe.
+
+    Parameters
+    ----------
+    file_path : str
+        Path to dataset.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataset in DataFrame format.
+
+    """
     # Check file exists
     if not os.path.exists(file_path):
         raise FileExistsError(file_path)
 
+    # Load dataset and initialise Dataframe
     with h5py.File(file_path, 'r') as hdf:
         ls = list(hdf.keys())
         df = pd.DataFrame()
         for key in ls:
-            print(key)
-            # if not key.startswith('UN_') and key not in ['fiber_compass', 'fiber_accel', 'fiber_gyro', 'velodyne_gps', 'velodyne_heading', 'velodyne_imu']:
+            # All but no UN_ variables that are linked to imageries
             if not key.startswith('UN_'):
                 key_data = hdf.get(key)
                 key_shape = key_data.shape
-                print(key_shape)
-                print(len(key_shape))
+
+                # Make sure to assign correctly multi-valued columns
                 if len(key_shape) == 1:
                     df[key] = np.array(key_data)
                 else:
@@ -35,12 +41,4 @@ def load_dataset_as_dataframe(file_path: str):
                         multi_key_name = key + '_' + str(i)
                         df[multi_key_name] = np.array(key_data[:, i])
 
-        # df.columns = ls
         return df
-    # return 'dsd'
-
-def convert_ecef_to_lat_lon_elevation():
-    pass
-
-def scale_features():
-    pass
