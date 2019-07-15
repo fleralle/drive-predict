@@ -12,3 +12,6 @@ In order to run the Jupyter Notebook, you will need first to download the
 following dataset https://archive.org/download/comma-dataset/comma-dataset.zip/log%2F2016-01-30--11-24-51.h5
 described here https://archive.org/details/comma-dataset (thanks to https://comma.ai)
 This dataset contains data from car sensors collected during driving.
+
+## Dataset Description
+Full description can be found here (https://github.com/commaai/research/blob/master/Logs.md)
