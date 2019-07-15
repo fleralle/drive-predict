@@ -1,11 +1,11 @@
 # Drive & Predict
 
-## Description
+## Description
 The study aims to predict distinct metrics and categories out of driving data.
 How good will it be to tell you if you are a good or bad driver based on your
 driving data ? Or may be, to tell the drivers to slow down during turns or increase
 their braking distance.
-During this study, we will split our work into small feasible tasks. 
+During this study, we will split our work into small feasible tasks.
 
 ## Installation
 In order to run the Jupyter Notebook, you will need first to download the
