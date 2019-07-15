@@ -1,5 +1,6 @@
 # Data folder
 data/*
+!data/.keep
 
 # Env files and dirs
 .DS_store
