@@ -42,3 +42,9 @@ def load_dataset_as_dataframe(file_path: str):
                         df[multi_key_name] = np.array(key_data[:, i])
 
         return df
+
+
+def extract_brakes(df: pd.DataFrame, period=100):
+    brake_df = df.expanding(period).mean()
+    brake_df = brake_df.take(range(0, len(df), period)).dropna()
+    return brake_df
