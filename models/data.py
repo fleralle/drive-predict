@@ -47,17 +47,68 @@ def load_dataset_as_dataframe(data_dir_path: str):
                                 df[multi_key_name] = np.array(key_data[:, i])
 
                 dataframe_list.append(df)
-    return pd.concat(dataframe_list, ignore_index=True)
+    concatenated_df = pd.concat(dataframe_list, ignore_index=True)
+
+    # Reassign idx based on new index
+    concatenated_df['idx'] = concatenated_df.index
+    return concatenated_df
 
 
-def extract_brakes(df: pd.DataFrame, period=100, treshold=-2):
-    # brake_df = df.expanding(period).std()
-    # brake_df = brake_df.take(range(0, len(df), period)).dropna()
-    # brake_indexes = df[df.car_accel < 0].index
+def extract_brake_events(df: pd.DataFrame, treshold=-2):
+    """Extract brake events out of dataset.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataset containing driving measures.
+    treshold : int
+        Treshold for significant acceleration in m/s^2.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe containing only brake events driving measures.
+
+    """
     brake_df = df[df.car_accel < treshold]
-    # brake_df = df.take(range(0, len(df), period))
     return brake_df
 
 
-def extract_brake_features(df: pd.DataFrame):
+def extract_brake_features(df: pd.DataFrame, treshold=-2, brake_interval=2):
+    """Extract a list of brake event time series.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataset containing driving measures.
+    treshold : int
+        Treshold for significant acceleration in m/s^2.
+    brake_interval : int
+        Time interval in seconds where 2 brake events are considered distincts.
+
+    Returns
+    -------
+    list
+        List of DataFrame containing brake events time series.
+
+    """
+    # prepare output
+    brake_features = []
+    brake_df = extract_brake_events(df)
+
+    # Measures are taken at a 100Hz frequency.
+    boundaries = (brake_df.idx - brake_df.idx.shift()) > (brake_interval * 100)
+    new_boundaries = boundaries.reset_index()
+
+    boundaries_indexes = new_boundaries[new_boundaries['idx']].index
+
+    for i in range(len(boundaries_indexes)):
+        min_bound = 0 if i == 0 else boundaries_indexes[i-1]
+        max_bound = boundaries_indexes[i]
+        brake_features.append(brake_df[min_bound:max_bound])
+
+    return brake_features
+
+
+def calculate_feature_metrics(feature_df: pd.DataFrame):
     pass
