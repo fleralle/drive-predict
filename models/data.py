@@ -6,6 +6,27 @@ import os
 import fnmatch
 
 
+TRIP_DATA_COLUMNS = [
+    'time',
+    'speed',
+    'shift',
+    'engine_Load',
+    'car_accel',
+    'rpm',
+    'pitch',
+    'lateral_acceleration',
+    'passenger_count',
+    'car_load',
+    'ac_status',
+    'window_opening',
+    'radio_volume',
+    'rain_intensity',
+    'visibility',
+    'driver_wellbeing',
+    'driver_rush'
+]
+
+
 def load_dataset_as_dataframe(data_dir_path: str):
     """Load HD5 dataset as a panda dataframe.
 
@@ -54,6 +75,30 @@ def load_dataset_as_dataframe(data_dir_path: str):
     return concatenated_df
 
 
+def load_trip_dataset(data_dir_path: str):
+    dataframe_list = []
+    max_time = 0
+
+    for filename in os.listdir(data_dir_path):
+        if fnmatch.fnmatch(filename, 'fileID*_ProcessedTripData.csv'):
+            # Load dataset and initialise Dataframe
+            df = pd.read_csv(os.path.join(data_dir_path, filename), header=None)
+            df.columns = TRIP_DATA_COLUMNS
+
+            # Assign time to keep record continuity
+            df.time = df.time + max_time
+            max_time = df.time.max()
+            dataframe_list.append(df)
+
+    # Merge all together
+    concatenated_df = pd.concat(dataframe_list, ignore_index=True)
+
+    # Assign idx based on new index. Useful to brakedown events later on.
+    concatenated_df['idx'] = concatenated_df.index
+
+    return concatenated_df
+
+
 def extract_brake_events(df: pd.DataFrame, treshold=-2):
     """Extract brake events out of dataset.
 
@@ -97,10 +142,12 @@ def extract_brake_features(df: pd.DataFrame, treshold=-2, brake_interval=2):
     brake_df = extract_brake_events(df)
 
     # Measures are taken at a 100Hz frequency.
-    boundaries = (brake_df.idx - brake_df.idx.shift()) > (brake_interval * 100)
+    # boundaries = (brake_df.idx - brake_df.idx.shift()) > (brake_interval * 100)
+    boundaries = (brake_df.time - brake_df.time.shift()) > (brake_interval)
     new_boundaries = boundaries.reset_index()
 
-    boundaries_indexes = new_boundaries[new_boundaries['idx']].index
+    # boundaries_indexes = new_boundaries[new_boundaries['idx']].index
+    boundaries_indexes = new_boundaries[new_boundaries['time']].index
 
     for i in range(len(boundaries_indexes)):
         min_bound = 0 if i == 0 else boundaries_indexes[i-1]
