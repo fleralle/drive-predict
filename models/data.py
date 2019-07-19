@@ -188,12 +188,73 @@ def calculate_brake_distance(feature_df):
     return calculate_distance(origin_coord, destination_coord)
 
 
-def calculate_brake_metrics(features: list):
-    # print(type(feature_df.describe()))
-    metrics = [pd.concat([feature.speed.describe(), feature.car_accel.describe()], axis=0) for feature in features]
-    # brake_distance = [calculate_brake_distance(feature) for feature in features]
-    # max_speed = [feature.speed.max() for feature in features]
+def calculate_event_metrics(event_df: pd.DataFrame):
+    """Calculates metrics for given driving event.
 
-    return pd.concat(metrics, axis=1).T.reset_index()
-    # return metrics.T.reset_index()
-    # return pd.concat([pd.Series(brake_distance), pd.Series(max_speed)], axis=1)
+    Parameters
+    ----------
+    event_df : pd.DataFrame
+        Driving event dataframe containing all car measures.
+
+    Returns
+    -------
+    pd.Series
+        Series containing event metrics.
+
+    """
+    # Build numerical data metrics
+    numerical_features = [
+        'speed',
+        'car_accel',
+        'lateral_acceleration',
+        'rpm',
+        'pitch',
+        'shift'
+    ]
+    num_metrics = [event_df[feature].describe().add_prefix(feature + '_') for feature in numerical_features]
+    num_metrics_ds = pd.concat(num_metrics, axis=0)
+
+    # Build categorical data metrics
+    categorical_features = [
+        'driver_rush',
+        'visibility',
+        'rain_intensity',
+        'driver_wellbeing'
+    ]
+    cat_metrics = [event_df[feature].mean() for feature in categorical_features]
+    cat_metrics_ds = pd.Series(cat_metrics, index=categorical_features)
+
+    # Merge numerical and categorical metrics
+    metrics_ds = pd.concat([num_metrics_ds, cat_metrics_ds], axis=0)
+
+    # Clean duplicated 'count' columns and rename labels
+    duplicated_cols = [col + '_count' for col in numerical_features[1:]]
+    metrics_ds.drop(labels=duplicated_cols, inplace=True)
+    metrics_ds.rename({'speed_count': 'observations'}, inplace=True)
+    metrics_ds.rename(lambda x: x.replace('%', ''), inplace=True)
+
+    return metrics_ds
+
+
+def get_events_metrics(events: list):
+    """Returns events metrics dataframe.
+
+    Parameters
+    ----------
+    events : list
+        List of driving events.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing all event metrics.
+
+    """
+    metrics = [calculate_event_metrics(event) for event in events]
+
+    # Format dataframe
+    metrics_df = pd.concat(metrics, axis=1).T.reset_index()
+
+    metrics_df.drop(columns=['index'], inplace=True)
+
+    return metrics_df
