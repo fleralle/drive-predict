@@ -1,5 +1,7 @@
 # Drive & Predict
 
+[Photo by Pang Yuhao on Unsplash](images/pang-yuhao-X00ZafKUdBo-unsplash.jpg)Photo by Pang Yuhao on Unsplash
+
 ## Description
 The study aims to predict distinct metrics and categories out of driving data.
 How good will it be to tell you if you are a good or bad driver based on your
