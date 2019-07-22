@@ -21,8 +21,8 @@ in the near future.
 
 During this study, we will split our work into small feasible tasks. We will look
 at behaviours like braking, starts, turning. To do so, I have built a data utils
-lib under `models/data.py` containing event (such as brake, start, turn) extraction
-functions and also functions that calculate metrics around those events.
+lib under `models/data.py` containing event (such as braking, acceleration, turning)
+extraction functions and also functions that calculate metrics around those events.
 
 ## Installation
 In order to run the Jupyter Notebook, you will need first to download the
