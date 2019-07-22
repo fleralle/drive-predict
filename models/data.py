@@ -1,11 +1,10 @@
 """Data util librairy."""
 import numpy as np
-import h5py
 import pandas as pd
 import os
 import fnmatch
 
-
+# Columns names in CSV file.
 TRIP_DATA_COLUMNS = [
     'time',
     'speed',
@@ -28,7 +27,7 @@ TRIP_DATA_COLUMNS = [
 
 
 def load_dataset_as_dataframe(data_dir_path: str):
-    """Load HD5 dataset as a panda dataframe.
+    """Load dataset as a panda dataframe.
 
     Parameters
     ----------
@@ -41,37 +40,31 @@ def load_dataset_as_dataframe(data_dir_path: str):
         Dataset in DataFrame format.
 
     """
+    # Initialize returned output
+    dataframe_list = []
+    max_time = 0
+
     # Check file exists
     if not os.path.exists(data_dir_path):
         raise FileNotFoundError('Path "{}" not found'.format(data_dir_path))
 
-    dataframe_list = []
-
     for filename in os.listdir(data_dir_path):
-        if fnmatch.fnmatch(filename, '*-*-*--*-*-*.h5'):
+        if fnmatch.fnmatch(filename, 'fileID*_ProcessedTripData.csv'):
             # Load dataset and initialise Dataframe
-            with h5py.File(os.path.join(data_dir_path, filename), 'r') as hdf:
-                ls = list(hdf.keys())
-                df = pd.DataFrame()
-                for key in ls:
-                    # All but no UN_ variables that are linked to imageries
-                    if not key.startswith('UN_'):
-                        key_data = hdf.get(key)
-                        key_shape = key_data.shape
+            df = pd.read_csv(os.path.join(data_dir_path, filename), header=None)
+            df.columns = TRIP_DATA_COLUMNS
 
-                        # Make sure to assign correctly multi-valued columns
-                        if len(key_shape) == 1:
-                            df[key] = np.array(key_data)
-                        else:
-                            for i in range(key_shape[1]):
-                                multi_key_name = key + '_' + str(i)
-                                df[multi_key_name] = np.array(key_data[:, i])
+            # Assign time to keep record continuity
+            df.time = df.time + max_time
+            max_time = df.time.max()
+            dataframe_list.append(df)
 
-                dataframe_list.append(df)
+    # Merge all together
     concatenated_df = pd.concat(dataframe_list, ignore_index=True)
 
-    # Reassign idx based on new index
+    # Assign idx based on new index. Useful to brakedown events later on.
     concatenated_df['idx'] = concatenated_df.index
+
     return concatenated_df
 
 

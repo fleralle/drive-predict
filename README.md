@@ -51,3 +51,9 @@ Contents of CSV files:
 * Column 15: Visibility (0 - 10)
 * Column 16: Driver’s wellbeing (0 - 10)
 * Column 17: Driver’s rush (0 - 10)
+
+## Exploratory Data Analysis
+
+### Brakes events
+
+###
