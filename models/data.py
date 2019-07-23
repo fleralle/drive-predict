@@ -116,8 +116,8 @@ def plot_feature_distributions(
         sns.distplot(df[col_name], ax=axes[row][col])
 
 
-def extract_brake_events(df: pd.DataFrame, threshold=-2):
-    """Extract brake events out of dataset.
+def filter_acceleration_entries(df: pd.DataFrame, threshold=2, above=True):
+    """Extract acceleration events out of dataset.
 
     Parameters
     ----------
@@ -125,26 +125,25 @@ def extract_brake_events(df: pd.DataFrame, threshold=-2):
         Dataset containing driving measures.
     threshold : int
         Treshold for significant acceleration in m/s^2.
+    above : boolean
+        Should the acceleration be above or bellow threshold.
 
     Returns
     -------
     pd.DataFrame
-        Dataframe containing only brake events driving measures.
+        Dataframe containing only acceleration events driving measures.
 
     """
-    brake_df = df[df.car_accel < threshold]
-    return brake_df
+    return df[df.car_accel > threshold] if above else df[df.car_accel < threshold]
 
 
-def extract_brake_features(df: pd.DataFrame, threshold=-2, brake_interval=2):
+def extract_accelerations(df: pd.DataFrame, brake_interval=2):
     """Extract a list of brake event time series.
 
     Parameters
     ----------
     df : pd.DataFrame
         Dataset containing driving measures.
-    threshold : int
-        Treshold for significant acceleration in m/s^2.
     brake_interval : int
         Time interval in seconds where 2 brake events are considered distincts.
 
@@ -155,11 +154,10 @@ def extract_brake_features(df: pd.DataFrame, threshold=-2, brake_interval=2):
 
     """
     # prepare output
-    brake_features = []
-    brake_df = extract_brake_events(df, threshold)
+    accelerations = []
 
     # Measures are taken at a 100Hz frequency.
-    boundaries = (brake_df.time - brake_df.time.shift()) > (brake_interval)
+    boundaries = (df.time - df.time.shift()) > (brake_interval)
     new_boundaries = boundaries.reset_index()
 
     # boundaries_indexes = new_boundaries[new_boundaries['idx']].index
@@ -169,10 +167,10 @@ def extract_brake_features(df: pd.DataFrame, threshold=-2, brake_interval=2):
         min_bound = 0 if i == 0 else boundaries_indexes[i-1]
         max_bound = boundaries_indexes[i]
 
-        if len(brake_df[min_bound:max_bound]) > 10:
-            brake_features.append(brake_df[min_bound:max_bound])
+        if len(df[min_bound:max_bound]) > 10:
+            accelerations.append(df[min_bound:max_bound])
 
-    return brake_features
+    return accelerations
 
 
 def calculate_event_metrics(event_df: pd.DataFrame):
