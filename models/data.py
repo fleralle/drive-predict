@@ -4,6 +4,7 @@ import os
 import fnmatch
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import StandardScaler
 
 
 # Columns names in CSV file.
@@ -25,6 +26,24 @@ TRIP_DATA_COLUMNS = [
     'visibility',
     'driver_wellbeing',
     'driver_rush'
+]
+
+# Numerical features used for analysis.
+NUMERICAL_FEATURES = [
+    'speed',
+    'car_accel',
+    'lateral_acceleration',
+    'rpm',
+    'pitch',
+    'shift'
+]
+
+# Categorical features used for analysis.
+CATEGORICAL_FEATURES = [
+    'driver_rush',
+    'visibility',
+    'rain_intensity',
+    'driver_wellbeing'
 ]
 
 
@@ -97,14 +116,14 @@ def plot_feature_distributions(
         sns.distplot(df[col_name], ax=axes[row][col])
 
 
-def extract_brake_events(df: pd.DataFrame, treshold=-2):
+def extract_brake_events(df: pd.DataFrame, threshold=-2):
     """Extract brake events out of dataset.
 
     Parameters
     ----------
     df : pd.DataFrame
         Dataset containing driving measures.
-    treshold : int
+    threshold : int
         Treshold for significant acceleration in m/s^2.
 
     Returns
@@ -113,18 +132,18 @@ def extract_brake_events(df: pd.DataFrame, treshold=-2):
         Dataframe containing only brake events driving measures.
 
     """
-    brake_df = df[df.car_accel < treshold]
+    brake_df = df[df.car_accel < threshold]
     return brake_df
 
 
-def extract_brake_features(df: pd.DataFrame, treshold=-2, brake_interval=2):
+def extract_brake_features(df: pd.DataFrame, threshold=-2, brake_interval=2):
     """Extract a list of brake event time series.
 
     Parameters
     ----------
     df : pd.DataFrame
         Dataset containing driving measures.
-    treshold : int
+    threshold : int
         Treshold for significant acceleration in m/s^2.
     brake_interval : int
         Time interval in seconds where 2 brake events are considered distincts.
@@ -137,7 +156,7 @@ def extract_brake_features(df: pd.DataFrame, treshold=-2, brake_interval=2):
     """
     # prepare output
     brake_features = []
-    brake_df = extract_brake_events(df)
+    brake_df = extract_brake_events(df, threshold)
 
     # Measures are taken at a 100Hz frequency.
     boundaries = (brake_df.time - brake_df.time.shift()) > (brake_interval)
@@ -171,34 +190,20 @@ def calculate_event_metrics(event_df: pd.DataFrame):
 
     """
     # Build numerical data metrics
-    numerical_features = [
-        'speed',
-        'car_accel',
-        'lateral_acceleration',
-        'rpm',
-        'pitch',
-        'shift'
-    ]
     num_metrics = [event_df[feature].describe().add_prefix(feature + '_')
-                   for feature in numerical_features]
+                   for feature in NUMERICAL_FEATURES]
     num_metrics_ds = pd.concat(num_metrics, axis=0)
 
     # Build categorical data metrics
-    categorical_features = [
-        'driver_rush',
-        'visibility',
-        'rain_intensity',
-        'driver_wellbeing'
-    ]
     cat_metrics = [event_df[feature].mean()
-                   for feature in categorical_features]
-    cat_metrics_ds = pd.Series(cat_metrics, index=categorical_features)
+                   for feature in CATEGORICAL_FEATURES]
+    cat_metrics_ds = pd.Series(cat_metrics, index=CATEGORICAL_FEATURES)
 
     # Merge numerical and categorical metrics
     metrics_ds = pd.concat([num_metrics_ds, cat_metrics_ds], axis=0)
 
     # Clean duplicated 'count' columns and rename labels
-    duplicated_cols = [col + '_count' for col in numerical_features[1:]]
+    duplicated_cols = [col + '_count' for col in NUMERICAL_FEATURES[1:]]
     metrics_ds.drop(labels=duplicated_cols, inplace=True)
     metrics_ds.rename({'speed_count': 'observations'}, inplace=True)
     metrics_ds.rename(lambda x: x.replace('%', ''), inplace=True)
@@ -228,3 +233,40 @@ def get_events_metrics(events: list):
     metrics_df.drop(columns=['index'], inplace=True)
 
     return metrics_df
+
+
+def rescale_events_metrics(metrics_df: pd.DataFrame):
+    """Rescale numerical metrics features.
+
+    Parameters
+    ----------
+    metrics_df : pd.DataFrame
+        Metrics dataset.
+
+    Returns
+    -------
+    pd.DataFrame
+        Rescaled metrics dataframe.
+
+    """
+    # metrics dataset column suffixes
+    col_name_suffix = [
+        'mean',
+        'std',
+        'min',
+        '25',
+        '50',
+        '75',
+        'max'
+    ]
+    # Build metrics dataset columns names.
+    num_feat_col_names = [feature + '_' + suffix
+                          for feature in NUMERICAL_FEATURES
+                          for suffix in col_name_suffix]
+
+    # Rescale numerical features.
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(metrics_df[num_feat_col_names])
+    scaled_df = pd.DataFrame(scaled_data, columns=num_feat_col_names)
+
+    return pd.concat([scaled_df, metrics_df[CATEGORICAL_FEATURES]], axis=1)
