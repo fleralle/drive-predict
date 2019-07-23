@@ -137,27 +137,27 @@ def filter_acceleration_entries(df: pd.DataFrame, threshold=2, above=True):
     return df[df.car_accel > threshold] if above else df[df.car_accel < threshold]
 
 
-def extract_accelerations(df: pd.DataFrame, brake_interval=2):
+def extract_events(df: pd.DataFrame, interval=2):
     """Extract a list of brake event time series.
 
     Parameters
     ----------
     df : pd.DataFrame
         Dataset containing driving measures.
-    brake_interval : int
-        Time interval in seconds where 2 brake events are considered distincts.
+    interval : int
+        Time interval in seconds where 2 events are considered distincts.
 
     Returns
     -------
     list
-        List of DataFrame containing brake events time series.
+        List of DataFrame containing events time series.
 
     """
     # prepare output
-    accelerations = []
+    events = []
 
     # Measures are taken at a 100Hz frequency.
-    boundaries = (df.time - df.time.shift()) > (brake_interval)
+    boundaries = (df.time - df.time.shift()) > (interval)
     new_boundaries = boundaries.reset_index()
 
     # boundaries_indexes = new_boundaries[new_boundaries['idx']].index
@@ -168,9 +168,9 @@ def extract_accelerations(df: pd.DataFrame, brake_interval=2):
         max_bound = boundaries_indexes[i]
 
         if len(df[min_bound:max_bound]) > 10:
-            accelerations.append(df[min_bound:max_bound])
+            events.append(df[min_bound:max_bound])
 
-    return accelerations
+    return events
 
 
 def calculate_event_metrics(event_df: pd.DataFrame):
