@@ -279,9 +279,9 @@ def calculate_harsh_braking_ratio(
     Parameters
     ----------
     brake_df : pd.DataFrame
-        Description of parameter `brake_df`.
+        DataFrame containing braking metrics.
     threshold : int
-        Description of parameter `threshold`.
+        Car acceleration threshold.
     verbose : boolean
         Print out result.
 
@@ -304,3 +304,39 @@ def calculate_harsh_braking_ratio(
         print('---------------------------')
 
     return harsh_braking_ratio
+
+
+def calculate_harsh_acceleration_ratio(
+                    acceleration_df: pd.DataFrame,
+                    threshold=-3,
+                    verbose=False):
+    """Calculate ratio of harsh braking.
+
+    Parameters
+    ----------
+    acceleration_df : pd.DataFrame
+        DataFrame containing acceleration metrics.
+    threshold : int
+        Car acceleration threshold.
+    verbose : boolean
+        Print out result.
+
+    Returns
+    -------
+    float
+        Ratio of harsh accelerations.
+
+    """
+    num_harsh_accel = len(acceleration_df[acceleration_df.car_accel_75 > threshold])
+    num_accelerations = len(acceleration_df)
+
+    harsh_accel_ratio = round(num_harsh_accel / num_accelerations, 3)
+
+    if verbose:
+        print('---------------------------')
+        print('Harsh acceleration ratio : ', harsh_accel_ratio)
+        print('Harsh acceleration count : ', num_harsh_accel)
+        print('Total acceleration count : ', num_accelerations)
+        print('---------------------------')
+
+    return harsh_accel_ratio
