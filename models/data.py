@@ -270,3 +270,39 @@ def rescale_events_metrics(metrics_df: pd.DataFrame):
     scaled_df = pd.DataFrame(scaled_data, columns=num_feat_col_names)
 
     return pd.concat([scaled_df, metrics_df[CATEGORICAL_FEATURES]], axis=1)
+
+
+def calculate_harsh_braking_ratio(
+                    brake_df: pd.DataFrame,
+                    threshold=-3,
+                    verbose=False):
+    """Calculate ratio of harsh braking.
+
+    Parameters
+    ----------
+    brake_df : pd.DataFrame
+        Description of parameter `brake_df`.
+    threshold : int
+        Description of parameter `threshold`.
+    verbose : boolean
+        Print out result.
+
+    Returns
+    -------
+    float
+        Ratio of harsh brakings.
+
+    """
+    num_harsh_brakings = len(brake_df[brake_df.car_accel_25 < threshold])
+    num_brakings = len(brake_df)
+
+    harsh_braking_ratio = round(num_harsh_brakings / num_brakings, 3)
+
+    if verbose:
+        print('---------------------------')
+        print('Harsh braking ratio : ', harsh_braking_ratio)
+        print('Harsh braking count : ', num_harsh_brakings)
+        print('Total braking count : ', num_brakings)
+        print('---------------------------')
+
+    return harsh_braking_ratio
