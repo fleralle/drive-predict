@@ -1,4 +1,4 @@
-"""Data util librairy."""
+"""Data utils librairy."""
 import pandas as pd
 import os
 import fnmatch

@@ -25,6 +25,14 @@ class BasePipeline(Pipeline):
     """Add first features preprocessing step to Pipeline."""
 
     def __init__(self, model=None):
+        """Initialise a sklearn Pipeline instance.
+
+        Parameters
+        ----------
+        model : object
+            The model to be used by the pipeline.
+
+        """
         features = self.build_features_step()
         custom_steps = [
             ('features', features),
