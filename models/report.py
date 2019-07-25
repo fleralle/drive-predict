@@ -1,4 +1,4 @@
-"""Visualisation utils librairy."""
+"""Report utils librairy."""
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -33,7 +33,7 @@ def print_confusion_matrix(y_true, y_pred, with_report=True, labels=None):
     tick_marks = np.arange(len(labels))
 
     # create heatmap
-    sns.heatmap(cnf_matrix, annot=True, cmap="YlGnBu", fmt='g')
+    sns.heatmap(cnf_matrix, annot=True, cmap='YlGnBu', fmt='g')
     ax.xaxis.set_label_position("top")
     plt.tight_layout()
     plt.title('Confusion matrix', y=1.1)
@@ -46,3 +46,25 @@ def print_confusion_matrix(y_true, y_pred, with_report=True, labels=None):
     # Print classification report.
     if with_report:
         print(classification_report(y_true, y_pred))
+
+
+def report_top_scores(results, n_top=3):
+    """Report best scores.
+
+    Parameters
+    ----------
+    results : list
+        Result list returned by sklearn.model_selection SearchCV Classes.
+    n_top : int
+        Number of top results to display.
+
+    """
+    for i in range(1, n_top + 1):
+        candidates = np.flatnonzero(results['rank_test_score'] == i)
+        for candidate in candidates:
+            print('Model with rank: {0}'.format(i))
+            print('Mean validation score: {0:.3f} (std: {1:.3f})'.format(
+                  results['mean_test_score'][candidate],
+                  results['std_test_score'][candidate]))
+            print('Parameters: {0}'.format(results['params'][candidate]))
+            print('')
