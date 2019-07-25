@@ -34,7 +34,7 @@ def print_confusion_matrix(y_true, y_pred, with_report=True, labels=None):
 
     # create heatmap
     sns.heatmap(cnf_matrix, annot=True, cmap='YlGnBu', fmt='g')
-    ax.xaxis.set_label_position("top")
+    ax.xaxis.set_label_position('top')
     plt.tight_layout()
     plt.title('Confusion matrix', y=1.1)
     plt.ylabel('Actual label')
