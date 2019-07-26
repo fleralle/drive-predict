@@ -1,5 +1,5 @@
 """BasePipeline Class."""
-from sklearn.pipeline import FeatureUnion, make_pipeline
+from sklearn.pipeline import Pipeline, FeatureUnion, make_pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from models.pipeline import Columns
 
@@ -53,10 +53,9 @@ class BasePipeline():
             Pipeline including built-in features preprocessing steps and model.
 
         """
-        steps = self.custom_steps + steps
-        return make_pipeline(steps)
-        # Pipeline.__init__(self, steps=custom_steps)
-        # super(Pipeline, self).__init__(steps=custom_steps)
+        pipe_steps = self.custom_steps + steps if steps else self.custom_steps
+
+        return Pipeline(pipe_steps)
 
     def build_features_step(self):
         """Build the features preprocessing Pipeline steps.
