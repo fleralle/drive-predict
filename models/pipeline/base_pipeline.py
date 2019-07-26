@@ -1,5 +1,5 @@
 """BasePipeline Class."""
-from sklearn.pipeline import Pipeline, FeatureUnion, make_pipeline
+from sklearn.pipeline import FeatureUnion, make_pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from models.pipeline import Columns
 
@@ -21,10 +21,10 @@ CATEGORICAL_FEATURES = [
 ]
 
 
-class BasePipeline(Pipeline):
+class BasePipeline():
     """Add first features preprocessing step to Pipeline."""
 
-    def __init__(self, model=None):
+    def __init__(self, model):
         """Initialise a sklearn Pipeline instance.
 
         Parameters
@@ -34,12 +34,29 @@ class BasePipeline(Pipeline):
 
         """
         features = self.build_features_step()
-        custom_steps = [
+        self.custom_steps = [
             ('features', features),
             ('mdl', model)
         ]
-        Pipeline.__init__(self, steps=custom_steps)
-        # super(Pipeline, self).__init__(steps=steps)
+
+    def make_pipeline(self, steps=None):
+        """Construct a Pipeline from the given built-in steps + given steps.
+
+        Parameters
+        ----------
+        steps : list
+            List on estimators.
+
+        Returns
+        -------
+        Pipeline
+            Pipeline including built-in features preprocessing steps and model.
+
+        """
+        steps = self.custom_steps + steps
+        return make_pipeline(steps)
+        # Pipeline.__init__(self, steps=custom_steps)
+        # super(Pipeline, self).__init__(steps=custom_steps)
 
     def build_features_step(self):
         """Build the features preprocessing Pipeline steps.
