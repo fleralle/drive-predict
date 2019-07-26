@@ -67,7 +67,7 @@ The EDA highlights also the fact that the observations are not conclusives. It w
 
 ## Modelling
 
-This step consists in trying to find the best model which can predict our target value `driver_rush`. 
+This step consists in trying to find the best model which can predict our target value `driver_rush`.
 We took a pragmatic approach to the modelling phase and followed the steps bellow :
 
 * Select list of known classification models
@@ -87,7 +87,9 @@ The list of pre-selected classification models is :
 
 Out of our baseline modelling simulations the best-performing models are XGBoost Classifier, Decision Tree Classifier, Logistic Regression and random Forest. After dealing with our imbalance targets dataset and reducing the classification task to a binary classification, it comes up that our top 2 performers were Random Forest and XGBoost Classifier.
 
-For each top performer classifiers, a grid-search along with cross validation was run to determine the best hyper-parameters for the given classifier. 
+![XGBoost Classifier Results](images/xgboost-classifier-results.png)
+
+For each top performer classifiers, a grid-search along with cross validation was run to determine the best hyper-parameters for the given classifier.
 
 At the end, the best performing classifier was the Random Forest with overall mean validation score of 0.707
 
