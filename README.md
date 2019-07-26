@@ -87,7 +87,7 @@ The list of pre-selected classification models is :
 
 Out of our baseline modelling simulations the best-performing models are XGBoost Classifier, Decision Tree Classifier, Logistic Regression and random Forest. After dealing with our imbalance targets dataset and reducing the classification task to a binary classification, it comes up that our top 2 performers were Random Forest and XGBoost Classifier.
 
-![XGBoost Classifier Results](images/xgboost-classifier-results.png)
+![XGBoost Classifier Results](images/xgboost-classifier-results.png)![Logistic Regression Classifier Results](images/lr-classifier-results.png)![Decision Tree Classifier Results](images/dt-classifier-results.png)
 
 For each top performer classifiers, a grid-search along with cross validation was run to determine the best hyper-parameters for the given classifier.
 
