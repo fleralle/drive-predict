@@ -22,7 +22,9 @@ in the near future.
 During this study, we will split our work into small feasible tasks. We will look
 at behaviours like braking, starts, turning. To do so, I have built a data utils
 lib under `models/data.py` containing event (such as braking, acceleration, turning)
-extraction functions and also functions that calculate metrics around those events.
+extraction functions and also functions that calculate metrics around those events. The rest of the code can be found under the `models` module where there is more functionalities.
+
+The main Jupyter notebook is available at `notebook.ipynb` [link](https://github.com/fleralle/drive-predict/blob/master/notebook.ipynb). It details every single steps taken during the project.
 
 ## Installation
 In order to run the Jupyter Notebook, you will need first to download the
@@ -54,6 +56,44 @@ Contents of CSV files:
 
 ## Exploratory Data Analysis
 
-### Brakes events
+The EDA has been conducted in 3 distinct steps :
+* Loading the datasets and checking the structure, feature types and null values.
+* Looking at feature distribution (lookiing for outliers) and any feature correlations.
+* Extracting the driving events (braking, acceleration, turning), calculating the metrics around tose events and then plotting the metrics against with our target value `driver_rush`
 
-###
+From the 3 events types the most notable one is the braking. Even if the numbers are not huge, the ratio of harsh braking over total braking events is five times higher when the driver is in a rush compared to not in a rush. The others events (accelerations and turnings) didn't really show a difference between `rush` vs `not rush` when looking at harsh accelerations ratio and harsh turning ratio.
+
+The EDA highlights also the fact that the observations are not conclusives. It would have been helpful to get more data and especially more data coming from distinct drivers. Here we only have the driving measurements for one driver-one car which obviouly is not ideal.
+
+## Modeling
+
+This step consists in trying to find the best model which can predict our target value `driver_rush`. 
+We took a pragmatic approach to the modeling phase and followed the steps bellow :
+
+* Select list of known classification models
+* Run a baseline model for each of our pre-selected models
+* Pick the top models base on **precision**, **recall**, **f1-score** scores
+* Tune the hyper-parameters of the top model and watch score increase
+
+The list of pre-selected classification models is :
+
+* Logistic Regression
+* Decision Tree
+* Random Forest
+* AdaBoost
+* K Nearest Neighbors
+* XGBoost
+* SVC (Support Vector Classification)
+
+Out of our baseline modeling simulations the best-performing models are XGBoost Classifier, Decision Tree Classifier, Logistic Regression and random Forest. After dealing with our imbalance targets dataset and reducing the classification task to a binary classification, it comes up that our top 2 performers were Random Forest and XGBoost Classifer.
+
+For each top performer classifiers, a grid-search along with cross validation was run to determine the best hyperparameters for the given classifier. 
+
+At the end, the best performing classifier was the Random Forest with averall mean validation score of 0.707
+
+## Conclusion
+
+* Random Forest was the best-performing classifier to predict the driver rush indicator.
+* Surprisingly accelerations and turning events didn't really indicate that it was possible to predict our target values from. This observation definitively needs more studies as we have a lack of data for now.
+* Next steps include gathering more data from different diver and a way to label those data. I would look at building an app that does that and ask friends for their participation.
+* Also it would be interresting to train a Neural Network and see if it can perform better than Random Forest.
