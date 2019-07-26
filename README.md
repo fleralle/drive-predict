@@ -63,6 +63,10 @@ The EDA has been conducted in 3 distinct steps :
 
 From the 3 events types the most notable one is the braking. Even if the numbers are not huge, the ratio of harsh braking over total braking events is five times higher when the driver is in a rush compared to not in a rush. The others events (accelerations and turnings) didn't really show a difference between `rush` vs `not rush` when looking at harsh accelerations ratio and harsh turning ratio.
 
+Harsh braking            |  Harsh acceleration     
+:-----------------------:|:-----------------------:
+![Harsh braking](images/harsh-brake.png) | ![Harsh acceleration](images/harsh-accel.png)
+
 The EDA highlights also the fact that the observations are not conclusives. It would have been helpful to get more data and especially more data coming from distinct drivers. Here we only have the driving measurements for one driver-one car which obviously is not ideal.
 
 ## Modelling
