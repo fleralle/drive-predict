@@ -5,23 +5,19 @@
 ## Description
 The study aims to predict distinct metrics and categories out of driving data.
 How good will it be to tell you if you are a good or bad driver based on your
-driving data ? Or may be, to tell the drivers to slow down during turns or increase
+driving data ? Or may be, to tell the drivers to slow down during turns or to increase
 their braking distance.
 
 Such model might have multiple applications like insurance rating/pricing,
-driver rating system, on board warning system. Some companies (Uber, Lyft,
-Progressive) are already using their own private data to predict/build their
-models.
+driver rating system, on board warning system, companies wanting to track their fleet drivers. Some companies (Uber, Lyft, Progressive) are already using their own private data to predict/build their models.
 
 As the study involves to get lots of data around driving car, it has been
-difficult to find out available datasets. The first goal of this project was to
-build the app that allows data collection in order to build the model. As I ran
-out of time I haven't been able to build it unfortunately. I hope I will do it
+difficult to find out available datasets. The first step of this project was from the very beginning to build the app that allows the data collection in order to build the model. As I ran out of time, I haven't been able to build it unfortunately. I hope I will do it
 in the near future.
 
 During this study, we will split our work into small feasible tasks. We will look
 at behaviours like braking, starts, turning. To do so, I have built a data utils
-lib under `models/data.py` containing event (such as braking, acceleration, turning)
+lib under `models/data.py` containing events (such as braking, acceleration, turning)
 extraction functions and also functions that calculate metrics around those events. The rest of the code can be found under the `models` module where there is more functionalities.
 
 The main Jupyter notebook is available at `notebook.ipynb` [link](https://github.com/fleralle/drive-predict/blob/master/notebook.ipynb). It details every single steps taken during the project.
@@ -59,7 +55,7 @@ Contents of CSV files:
 The EDA has been conducted in 3 distinct steps :
 * Loading the datasets and checking the structure, feature types and null values.
 * Looking at feature distribution (looking for outliers) and any feature correlations.
-* Extracting the driving events (braking, acceleration, turning), calculating the metrics around those events and then plotting the metrics against with our target value `driver_rush`
+* Extracting the driving events (braking, acceleration, turning), calculating the metrics around those events and then plotting the metrics against our target value `driver_rush`
 
 From the 3 events types the most notable one is the braking. Even if the numbers are not huge, the ratio of harsh braking over total braking events is five times higher when the driver is in a rush compared to not in a rush. The others events (accelerations and turnings) didn't really show a difference between `rush` vs `not rush` when looking at harsh accelerations ratio and harsh turning ratio.
 
@@ -77,7 +73,7 @@ We took a pragmatic approach to the modelling phase and followed the steps bello
 * Select list of known classification models
 * Run a baseline model for each of our pre-selected models
 * Pick the top models base on **precision**, **recall**, **f1-score** scores
-* Tune the hyper-parameters of the top model and watch score increase
+* Tune the hyper-parameters of the top model using cross-validation and watch score increase
 
 The list of pre-selected classification models is :
 
@@ -89,13 +85,15 @@ The list of pre-selected classification models is :
 * XGBoost
 * SVC (Support Vector Classification)
 
-Out of our baseline modelling simulations the best-performing models are XGBoost Classifier, Decision Tree Classifier, Logistic Regression and random Forest. After dealing with our imbalance targets dataset and reducing the classification task to a binary classification, it comes up that our top 2 performers were Random Forest and XGBoost Classifier.
+Out of our baseline modelling simulations and after reducing the classification task to a binary classification, the best-performing models are XGBoost Classifier, Decision Tree Classifier, Logistic Regression.
 
 XGBOOST                  |  Logistic Regression     |  Decision Tree
 :-----------------------:|:------------------------:|:-------------------------:
 ![XGBoost Classifier Results](images/xgboost-classifier-results.png) | ![Logistic Regression Classifier Results](images/lr-classifier-results.png) | ![Decision Tree Classifier Results](images/dt-classifier-results.png)
 
-For each top performer classifiers, a grid-search along with cross validation was run to determine the best hyper-parameters for the given classifier.
+After dealing our imbalance targets dataset, it comes up that our top performer was the XGBoost Classifier. Surprisingly enough, the model which benefits the most from the balanced training dataset was Random Forest. As such, I kept it for the next step of the modelling phase.
+
+For each selected classifiers (Random Forest and XGBoost), we ran a grid-search along with cross validation to determine the best hyper-parameters for the given classifier.
 
 At the end, the best performing classifier was the Random Forest with overall mean validation score of 0.707
 
